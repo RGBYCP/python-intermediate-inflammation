@@ -9,6 +9,24 @@ and each column represents a single day across all patients.
 
 import numpy as np
 
+def patient_normalise(data):
+    """Normalise patient data from a 2D inflammation data array."""
+
+    print(data, type(data))
+    if not isinstance(data, np.ndarray):
+        raise TypeError('data input should be ndarray')
+    if len(data.shape) != 2:
+        raise ValueError('inflammation array should be 2-dimensional')
+    if np.isnan(data).any():
+        data[np.isnan(data)]=0
+    if np.any(data < 0):
+        raise ValueError('inflammation values should be non-negative')
+    max_data = np.nanmax(data, axis=1)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        normalised = data / max_data[:, np.newaxis]
+    normalised[np.isnan(normalised)] = 0
+    return normalised
+ 
 
 def load_csv(filename):
     """Load a Numpy array from a CSV
@@ -47,4 +65,9 @@ def daily_min(data):
     """
     return np.min(data, axis=0)
 
+
+class Patient:
+    def __init__(self, name):
+        self.name = name
+        self.observations = []
 
